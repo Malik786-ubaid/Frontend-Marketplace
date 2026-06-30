@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getAllGigs } from "../services/gigService";
 
 function Home() {
@@ -9,7 +10,6 @@ function Home() {
     const fetchGigs = async () => {
       try {
         const data = await getAllGigs();
-
         setGigs(data.gigs || data);
       } catch (error) {
         console.log(error);
@@ -78,13 +78,18 @@ function Home() {
                 ))}
               </div>
 
-              <button className="mt-5 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
+              <Link
+                to={`/gig/${gig._id}`}
+                className="block mt-5 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 text-center cursor-pointer"
+              >
                 View Details
-              </button>
+              </Link>
             </div>
           ))
         ) : (
-          <h2>No Gigs Found</h2>
+          <h2 className="text-center text-2xl">
+            No Gigs Found
+          </h2>
         )}
       </div>
     </div>

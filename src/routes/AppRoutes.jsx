@@ -7,6 +7,7 @@ import CreateGig from "../pages/CreateGig";
 import Dashboard from "../pages/Dashboard";
 import MyGigs from "../pages/MyGigs";
 import EditGig from "../pages/EditGig";
+import GigDetails from "../pages/GigDetails";
 
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -14,6 +15,8 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+
+      <Route path="/gig/:id" element={<GigDetails />} />
 
       <Route path="/login" element={<Login />} />
 
