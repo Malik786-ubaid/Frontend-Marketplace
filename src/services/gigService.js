@@ -12,8 +12,19 @@ export const createGig = async (gigData) => {
   return response.data;
 };
 
-export const getAllGigs = async () => {
-  const response = await API.get("/gigs");
+export const getAllGigs = async (
+  search = "",
+  category = "",
+  sort = ""
+) => {
+  const response = await API.get("/gigs", {
+    params: {
+      search,
+      category,
+      sort,
+    },
+  });
+
   return response.data;
 };
 
