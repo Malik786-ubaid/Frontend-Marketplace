@@ -14,6 +14,7 @@ function Navbar() {
     <nav className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
+
           {/* Logo */}
           <Link
             to="/"
@@ -23,6 +24,7 @@ function Navbar() {
           </Link>
 
           <div className="flex items-center gap-6">
+
             {/* Home */}
             <Link
               to="/"
@@ -47,6 +49,22 @@ function Navbar() {
                   className="text-gray-700 hover:text-green-600"
                 >
                   My Gigs
+                </Link>
+
+                {/* My Orders */}
+                <Link
+                  to="/my-orders"
+                  className="text-gray-700 hover:text-green-600"
+                >
+                  My Orders
+                </Link>
+
+                {/* Received Orders */}
+                <Link
+                  to="/received-orders"
+                  className="text-gray-700 hover:text-green-600"
+                >
+                  Received Orders
                 </Link>
 
                 {/* Dashboard */}

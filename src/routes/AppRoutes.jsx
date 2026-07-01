@@ -6,8 +6,11 @@ import Register from "../pages/Register";
 import CreateGig from "../pages/CreateGig";
 import Dashboard from "../pages/Dashboard";
 import MyGigs from "../pages/MyGigs";
+import MyOrders from "../pages/MyOrders";
+import ReceivedOrders from "../pages/ReceivedOrders";
 import EditGig from "../pages/EditGig";
 import GigDetails from "../pages/GigDetails";
+import CreateOrder from "../pages/CreateOrder";
 
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -17,6 +20,15 @@ function AppRoutes() {
       <Route path="/" element={<Home />} />
 
       <Route path="/gig/:id" element={<GigDetails />} />
+
+      <Route
+        path="/order/:id"
+        element={
+          <ProtectedRoute>
+            <CreateOrder />
+          </ProtectedRoute>
+        }
+      />
 
       <Route path="/login" element={<Login />} />
 
@@ -36,6 +48,24 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <MyGigs />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/my-orders"
+        element={
+          <ProtectedRoute>
+            <MyOrders />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/received-orders"
+        element={
+          <ProtectedRoute>
+            <ReceivedOrders />
           </ProtectedRoute>
         }
       />

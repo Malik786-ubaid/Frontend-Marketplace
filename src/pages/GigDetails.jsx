@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { getSingleGig } from "../services/gigService";
 
 function GigDetails() {
@@ -52,7 +52,6 @@ function GigDetails() {
         </div>
 
         <div>
-
           <h1 className="text-4xl font-bold">
             {gig.title}
           </h1>
@@ -101,11 +100,12 @@ function GigDetails() {
             ))}
           </div>
 
-          <button
-            className="mt-8 w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 cursor-pointer"
+          <Link
+            to={`/order/${gig._id}`}
+            className="block mt-8 w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 text-center cursor-pointer"
           >
             Contact Freelancer
-          </button>
+          </Link>
 
         </div>
 
