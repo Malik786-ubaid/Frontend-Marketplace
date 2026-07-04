@@ -30,17 +30,20 @@ function MyOrders() {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
+
       <h1 className="text-4xl font-bold mb-8">
         My Orders
       </h1>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
         {orders.length > 0 ? (
           orders.map((order) => (
             <div
               key={order._id}
               className="bg-white shadow-lg rounded-xl p-5"
             >
+
               <h2 className="text-2xl font-semibold">
                 {order.projectTitle}
               </h2>
@@ -71,9 +74,7 @@ function MyOrders() {
                 <span className="font-bold">
                   Deadline:
                 </span>{" "}
-                {new Date(
-                  order.deadline
-                ).toLocaleDateString()}
+                {new Date(order.deadline).toLocaleDateString()}
               </p>
 
               <div className="mt-4">
@@ -92,12 +93,12 @@ function MyOrders() {
                 </span>
               </div>
 
+              
               <p className="text-sm text-gray-500 mt-5">
                 Ordered on{" "}
-                {new Date(
-                  order.createdAt
-                ).toLocaleDateString()}
+                {new Date(order.createdAt).toLocaleDateString()}
               </p>
+
             </div>
           ))
         ) : (
@@ -105,7 +106,9 @@ function MyOrders() {
             No Orders Found
           </h2>
         )}
+
       </div>
+
     </div>
   );
 }

@@ -1,18 +1,36 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import {
+  useEffect,
+  useState,
+} from "react";
+import {
+  Link,
+  useParams,
+} from "react-router-dom";
+
 import { getSingleGig } from "../services/gigService";
+import {
+  getGigReviews,
+  createReview,
+} from "../services/reviewService";
 
 function GigDetails() {
   const { id } = useParams();
 
   const [gig, setGig] = useState(null);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
 
   useEffect(() => {
     const fetchGig = async () => {
       try {
-        const data = await getSingleGig(id);
-        setGig(data.gig);
+        const gigData = await getSingleGig(id);
+        setGig(gigData.gig);
+
+        const reviewData = await getGigReviews(id);
+        setReviews(reviewData.reviews || []);
       } catch (error) {
         console.log(error);
       } finally {
@@ -22,6 +40,28 @@ function GigDetails() {
 
     fetchGig();
   }, [id]);
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      await createReview(id, {
+        rating,
+        comment,
+      });
+
+      alert("Review submitted successfully!");
+
+      const reviewData = await getGigReviews(id);
+      setReviews(reviewData.reviews || []);
+
+      setRating(5);
+      setComment("");
+    } catch (error) {
+      console.log(error);
+      alert("Failed to submit review.");
+    }
+  };
 
   if (loading) {
     return (
@@ -41,6 +81,7 @@ function GigDetails() {
 
   return (
     <div className="max-w-6xl mx-auto p-8">
+
       <div className="grid md:grid-cols-2 gap-10">
 
         <div>
@@ -52,6 +93,7 @@ function GigDetails() {
         </div>
 
         <div>
+
           <h1 className="text-4xl font-bold">
             {gig.title}
           </h1>
@@ -110,6 +152,108 @@ function GigDetails() {
         </div>
 
       </div>
+
+      {/* Reviews */}
+
+      <div className="mt-12">
+
+        <h2 className="text-3xl font-bold mb-6">
+          Reviews
+        </h2>
+
+        {reviews.length > 0 ? (
+          reviews.map((review) => (
+            <div
+              key={review._id}
+              className="border rounded-lg p-5 mb-4 shadow-sm"
+            >
+              <h3 className="font-bold text-lg">
+                {review.client?.name}
+              </h3>
+
+              <p className="text-yellow-500 mt-1">
+                ⭐ {review.rating} / 5
+              </p>
+
+              <p className="text-gray-700 mt-2">
+                {review.comment}
+              </p>
+
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500">
+            No reviews yet.
+          </p>
+        )}
+
+      </div>
+
+      {/* Leave Review */}
+
+      <div className="mt-10 bg-white shadow-lg rounded-xl p-6">
+
+        <h2 className="text-2xl font-bold mb-5">
+          Leave a Review
+        </h2>
+
+        <form
+          onSubmit={handleReviewSubmit}
+          className="space-y-5"
+        >
+
+          <div>
+
+            <label className="block mb-2 font-semibold">
+              Rating
+            </label>
+
+            <select
+              value={rating}
+              onChange={(e) =>
+                setRating(Number(e.target.value))
+              }
+              className="w-full border p-3 rounded-lg"
+            >
+              <option value={5}>⭐⭐⭐⭐⭐ (5)</option>
+              <option value={4}>⭐⭐⭐⭐ (4)</option>
+              <option value={3}>⭐⭐⭐ (3)</option>
+              <option value={2}>⭐⭐ (2)</option>
+              <option value={1}>⭐ (1)</option>
+            </select>
+
+          </div>
+
+          <div>
+
+            <label className="block mb-2 font-semibold">
+              Comment
+            </label>
+
+            <textarea
+              value={comment}
+              onChange={(e) =>
+                setComment(e.target.value)
+              }
+              rows="4"
+              required
+              className="w-full border p-3 rounded-lg"
+              placeholder="Write your review..."
+            />
+
+          </div>
+
+          <button
+            type="submit"
+            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 cursor-pointer"
+          >
+            Submit Review
+          </button>
+
+        </form>
+
+      </div>
+
     </div>
   );
 }

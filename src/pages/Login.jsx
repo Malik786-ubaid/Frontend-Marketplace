@@ -30,6 +30,12 @@ function Login() {
       if (data.token) {
         localStorage.setItem("token", data.token);
 
+        if (data.user) {
+          localStorage.setItem("role", data.user.role);
+          localStorage.setItem("userId", data.user._id);
+          localStorage.setItem("userName", data.user.name);
+        }
+
         setFormData({
           email: "",
           password: "",

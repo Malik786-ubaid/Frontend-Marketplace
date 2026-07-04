@@ -4,9 +4,14 @@ function Navbar() {
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
+
     navigate("/login");
   };
 
@@ -15,7 +20,6 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
 
-          {/* Logo */}
           <Link
             to="/"
             className="text-2xl font-bold text-green-600"
@@ -25,7 +29,6 @@ function Navbar() {
 
           <div className="flex items-center gap-6">
 
-            {/* Home */}
             <Link
               to="/"
               className="text-gray-700 hover:text-green-600"
@@ -33,9 +36,8 @@ function Navbar() {
               Home
             </Link>
 
-            {token ? (
+            {token && role === "freelancer" && (
               <>
-                {/* Create Gig */}
                 <Link
                   to="/create-gig"
                   className="text-gray-700 hover:text-green-600"
@@ -43,7 +45,6 @@ function Navbar() {
                   Create Gig
                 </Link>
 
-                {/* My Gigs */}
                 <Link
                   to="/my-gigs"
                   className="text-gray-700 hover:text-green-600"
@@ -51,15 +52,6 @@ function Navbar() {
                   My Gigs
                 </Link>
 
-                {/* My Orders */}
-                <Link
-                  to="/my-orders"
-                  className="text-gray-700 hover:text-green-600"
-                >
-                  My Orders
-                </Link>
-
-                {/* Received Orders */}
                 <Link
                   to="/received-orders"
                   className="text-gray-700 hover:text-green-600"
@@ -67,7 +59,6 @@ function Navbar() {
                   Received Orders
                 </Link>
 
-                {/* Dashboard */}
                 <Link
                   to="/dashboard"
                   className="text-gray-700 hover:text-green-600"
@@ -75,7 +66,6 @@ function Navbar() {
                   Dashboard
                 </Link>
 
-                {/* Logout */}
                 <button
                   onClick={handleLogout}
                   className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 cursor-pointer"
@@ -83,9 +73,35 @@ function Navbar() {
                   Logout
                 </button>
               </>
-            ) : (
+            )}
+
+            {token && role === "client" && (
               <>
-                {/* Login */}
+                <Link
+                  to="/my-orders"
+                  className="text-gray-700 hover:text-green-600"
+                >
+                  My Orders
+                </Link>
+
+                <Link
+                  to="/dashboard"
+                  className="text-gray-700 hover:text-green-600"
+                >
+                  Dashboard
+                </Link>
+
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 cursor-pointer"
+                >
+                  Logout
+                </button>
+              </>
+            )}
+
+            {!token && (
+              <>
                 <Link
                   to="/login"
                   className="text-gray-700 hover:text-green-600"
@@ -93,7 +109,6 @@ function Navbar() {
                   Login
                 </Link>
 
-                {/* Register */}
                 <Link
                   to="/register"
                   className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
@@ -102,6 +117,7 @@ function Navbar() {
                 </Link>
               </>
             )}
+
           </div>
         </div>
       </div>
