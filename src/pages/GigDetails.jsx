@@ -19,30 +19,51 @@ function GigDetails() {
   const [gig, setGig] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [reviewError, setReviewError] = useState("");
+  const [reviewSuccess, setReviewSuccess] = useState("");
 
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchGig = async () => {
+      setLoading(true);
+      setError("");
+
       try {
         const gigData = await getSingleGig(id);
-        setGig(gigData.gig);
-
         const reviewData = await getGigReviews(id);
-        setReviews(reviewData.reviews || []);
-      } catch (error) {
-        console.log(error);
+
+        if (isMounted) {
+          setGig(gigData.gig);
+          setReviews(reviewData.reviews || []);
+        }
+      } catch (err) {
+        console.error(err);
+        if (isMounted) {
+          setError("We couldn't load this gig right now. Please try again.");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchGig();
+    void fetchGig();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
+    setReviewError("");
+    setReviewSuccess("");
 
     try {
       await createReview(id, {
@@ -50,32 +71,71 @@ function GigDetails() {
         comment,
       });
 
-      alert("Review submitted successfully!");
-
       const reviewData = await getGigReviews(id);
       setReviews(reviewData.reviews || []);
-
+      setReviewSuccess("Your review was submitted successfully.");
       setRating(5);
       setComment("");
-    } catch (error) {
-      console.log(error);
-      alert("Failed to submit review.");
+    } catch (err) {
+      console.error(err);
+      setReviewError("We couldn't submit your review. Please try again.");
+    }
+  };
+
+  const handleRetry = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const gigData = await getSingleGig(id);
+      const reviewData = await getGigReviews(id);
+      setGig(gigData.gig);
+      setReviews(reviewData.reviews || []);
+    } catch (err) {
+      console.error(err);
+      setError("We couldn't load this gig right now. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   if (loading) {
     return (
-      <h2 className="text-center text-2xl mt-10">
-        Loading Gig...
-      </h2>
+      <div className="flex min-h-[50vh] items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-green-200 border-t-green-600"></div>
+          <h2 className="mt-4 text-xl font-semibold text-gray-900">Loading gig details...</h2>
+          <p className="mt-2 text-sm text-gray-500">Please wait while we fetch this listing and its reviews.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-10">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center shadow-sm">
+          <h2 className="text-xl font-semibold text-red-700">Unable to load gig</h2>
+          <p className="mt-2 text-sm text-red-600">{error}</p>
+          <button
+            onClick={() => void handleRetry()}
+            className="mt-5 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
     );
   }
 
   if (!gig) {
     return (
-      <h2 className="text-center text-2xl mt-10">
-        Gig Not Found
-      </h2>
+      <div className="mx-auto max-w-4xl px-4 py-10">
+        <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-8 text-center shadow-sm">
+          <h2 className="text-xl font-semibold text-gray-800">Gig not found</h2>
+          <p className="mt-2 text-sm text-gray-500">This gig may no longer be available.</p>
+        </div>
+      </div>
     );
   }
 
@@ -161,6 +221,18 @@ function GigDetails() {
           Reviews
         </h2>
 
+        {reviewError ? (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {reviewError}
+          </div>
+        ) : null}
+
+        {reviewSuccess ? (
+          <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+            {reviewSuccess}
+          </div>
+        ) : null}
+
         {reviews.length > 0 ? (
           reviews.map((review) => (
             <div
@@ -182,9 +254,9 @@ function GigDetails() {
             </div>
           ))
         ) : (
-          <p className="text-gray-500">
-            No reviews yet.
-          </p>
+          <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-gray-500">
+            No reviews yet. Be the first to share feedback.
+          </div>
         )}
 
       </div>

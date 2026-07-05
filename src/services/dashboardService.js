@@ -7,7 +7,7 @@ const token = () => ({
 });
 
 export const getDashboardStats = async () => {
-  const response = await API.get("/dashboard", token());
+  const response = await API.get("/dashboard/stats", token());
   return response.data;
 };
 

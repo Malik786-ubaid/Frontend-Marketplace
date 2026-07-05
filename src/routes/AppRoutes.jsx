@@ -11,6 +11,8 @@ import ReceivedOrders from "../pages/ReceivedOrders";
 import EditGig from "../pages/EditGig";
 import GigDetails from "../pages/GigDetails";
 import CreateOrder from "../pages/CreateOrder";
+import Support from "../pages/Support";
+import NotFound from "../pages/NotFound";
 
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -87,6 +89,10 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      <Route path="/support" element={<Support />} />
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

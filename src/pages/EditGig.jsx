@@ -19,32 +19,47 @@ function EditGig() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchGig = async () => {
+      setLoading(true);
+      setError("");
+
       try {
         const data = await getSingleGig(id);
-
         const gig = data.gig || data;
 
-        setFormData({
-          title: gig.title || "",
-          description: gig.description || "",
-          price: gig.price || "",
-          category: gig.category || "",
-          tags: Array.isArray(gig.tags)
-            ? gig.tags.join(", ")
-            : "",
-          image: gig.image || "",
-        });
-      } catch (error) {
-        console.log(error);
+        if (isMounted) {
+          setFormData({
+            title: gig.title || "",
+            description: gig.description || "",
+            price: gig.price || "",
+            category: gig.category || "",
+            tags: Array.isArray(gig.tags) ? gig.tags.join(", ") : "",
+            image: gig.image || "",
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        if (isMounted) {
+          setError("We couldn't load this gig right now. Please try again.");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchGig();
+    void fetchGig();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   const handleChange = (e) => {
@@ -56,32 +71,74 @@ function EditGig() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccessMessage("");
 
     try {
       const updatedData = {
         ...formData,
         price: Number(formData.price),
-        tags: formData.tags
-          .split(",")
-          .map((tag) => tag.trim()),
+        tags: formData.tags.split(",").map((tag) => tag.trim()),
       };
 
       await updateGig(id, updatedData);
+      setSuccessMessage("Gig updated successfully.");
+      setTimeout(() => navigate("/my-gigs"), 600);
+    } catch (err) {
+      console.error(err);
+      setError("We couldn't update this gig. Please try again.");
+    }
+  };
 
-      alert("Gig updated successfully!");
+  const handleRetry = async () => {
+    setLoading(true);
+    setError("");
 
-      navigate("/my-gigs");
-    } catch (error) {
-      console.log(error);
-      alert("Failed to update gig.");
+    try {
+      const data = await getSingleGig(id);
+      const gig = data.gig || data;
+      setFormData({
+        title: gig.title || "",
+        description: gig.description || "",
+        price: gig.price || "",
+        category: gig.category || "",
+        tags: Array.isArray(gig.tags) ? gig.tags.join(", ") : "",
+        image: gig.image || "",
+      });
+    } catch (err) {
+      console.error(err);
+      setError("We couldn't load this gig right now. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   if (loading) {
     return (
-      <h2 className="text-center text-2xl mt-10">
-        Loading...
-      </h2>
+      <div className="flex min-h-[50vh] items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
+          <h2 className="mt-4 text-xl font-semibold text-gray-900">Loading gig details...</h2>
+          <p className="mt-2 text-sm text-gray-500">Please wait while we prepare the form.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && !formData.title) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-10">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center shadow-sm">
+          <h2 className="text-xl font-semibold text-red-700">Unable to load gig</h2>
+          <p className="mt-2 text-sm text-red-600">{error}</p>
+          <button
+            onClick={() => void handleRetry()}
+            className="mt-5 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
     );
   }
 
@@ -90,6 +147,18 @@ function EditGig() {
       <h1 className="text-3xl font-bold mb-6">
         Edit Gig
       </h1>
+
+      {error ? (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      ) : null}
+
+      {successMessage ? (
+        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+          {successMessage}
+        </div>
+      ) : null}
 
       <form
         onSubmit={handleSubmit}

@@ -8,19 +8,27 @@ import {
 function MyGigs() {
   const [gigs, setGigs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     let active = true;
 
     const loadGigs = async () => {
+      setLoading(true);
+      setError("");
+
       try {
         const data = await getMyGigs();
 
         if (active) {
           setGigs(data.gigs || data);
         }
-      } catch (error) {
-        console.log(error);
+      } catch (err) {
+        console.error(err);
+        if (active) {
+          setError("We couldn't load your gigs right now. Please try again.");
+        }
       } finally {
         if (active) {
           setLoading(false);
@@ -36,31 +44,47 @@ function MyGigs() {
   }, []);
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this gig?"
-    );
+    const confirmDelete = window.confirm("Are you sure you want to delete this gig?");
 
     if (!confirmDelete) return;
 
+    setError("");
+    setSuccessMessage("");
+
     try {
       await deleteGig(id);
+      setGigs((prev) => prev.filter((gig) => gig._id !== id));
+      setSuccessMessage("Gig deleted successfully.");
+    } catch (err) {
+      console.error(err);
+      setError("We couldn't delete this gig. Please try again.");
+    }
+  };
 
-      setGigs((prev) =>
-        prev.filter((gig) => gig._id !== id)
-      );
+  const handleRetry = async () => {
+    setLoading(true);
+    setError("");
 
-      alert("Gig deleted successfully!");
-    } catch (error) {
-      console.log(error);
-      alert("Failed to delete gig.");
+    try {
+      const data = await getMyGigs();
+      setGigs(data.gigs || data);
+    } catch (err) {
+      console.error(err);
+      setError("We couldn't load your gigs right now. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   if (loading) {
     return (
-      <h2 className="text-center text-2xl mt-10">
-        Loading My Gigs...
-      </h2>
+      <div className="flex min-h-[50vh] items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-green-200 border-t-green-600"></div>
+          <h2 className="mt-4 text-xl font-semibold text-gray-900">Loading your gigs...</h2>
+          <p className="mt-2 text-sm text-gray-500">Please wait while we fetch your published work.</p>
+        </div>
+      </div>
     );
   }
 
@@ -69,6 +93,25 @@ function MyGigs() {
       <h1 className="text-4xl font-bold mb-8">
         My Gigs
       </h1>
+
+      {error ? (
+        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-6 text-center shadow-sm">
+          <h2 className="text-lg font-semibold text-red-700">Unable to load gigs</h2>
+          <p className="mt-2 text-sm text-red-600">{error}</p>
+          <button
+            onClick={() => void handleRetry()}
+            className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+          >
+            Try Again
+          </button>
+        </div>
+      ) : null}
+
+      {successMessage ? (
+        <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+          {successMessage}
+        </div>
+      ) : null}
 
       <div className="grid md:grid-cols-3 gap-6">
         {gigs.length > 0 ? (
@@ -111,9 +154,10 @@ function MyGigs() {
             </div>
           ))
         ) : (
-          <h2 className="text-center text-2xl">
-            No Gigs Found
-          </h2>
+          <div className="col-span-full rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center">
+            <h2 className="text-xl font-semibold text-gray-800">No gigs found</h2>
+            <p className="mt-2 text-sm text-gray-500">Create your first gig to start showcasing your work.</p>
+          </div>
         )}
       </div>
     </div>
