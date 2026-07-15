@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
 });
 
 // Attach token automatically when present
@@ -13,7 +13,7 @@ API.interceptors.request.use(
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
       }
-    } catch (e) {
+    } catch {
       // ignore localStorage errors in unusual environments
     }
     return config;
@@ -29,7 +29,9 @@ API.interceptors.response.use(
     if (status === 401) {
       try {
         localStorage.removeItem("token");
-      } catch (e) {}
+      } catch {
+        // ignore cleanup errors in unusual environments
+      }
       // Preserve current path so user can return after login
       if (typeof window !== "undefined" && window.location.pathname !== "/login") {
         const next = encodeURIComponent(window.location.pathname + window.location.search);
